@@ -58,7 +58,7 @@ def worker(password):
         return password, result
     return None
 
-# Panel kata (384 kombinasi total)
+# Panel kata asli (semua huruf kecil)
 panel_words = [
     ["wand","anid","sand","wind","rand","arwv","seed","bind","knot","cord"],
     ["hash","code","perm","sort"],
@@ -71,16 +71,27 @@ panel_words = [
 ]
 
 def main():
-    # Hasilkan semua kemungkinan password
-    passwords = ["".join(combo) for combo in itertools.product(*panel_words)]
-    total = len(passwords)
+    # Perluas setiap grup dengan menambahkan versi huruf besar dari setiap kata
+    expanded_panels = []
+    for group in panel_words:
+        new_group = []
+        for w in group:
+            new_group.append(w)          # versi asli (huruf kecil)
+            new_group.append(w.upper())  # versi huruf besar
+        expanded_panels.append(new_group)
+
+    # Hitung total kombinasi (sekitar 22,9 juta)
+    total = 1
+    for g in expanded_panels:
+        total *= len(g)
     print(f"Memulai pencarian paralel ({total} kombinasi) dengan 20 core...")
 
-    # Gunakan 20 proses (sesuaikan jika core tersedia kurang)
+    # Generator untuk menghindari penyimpanan semua password di memori
+    passwords_gen = ("".join(combo) for combo in itertools.product(*expanded_panels))
+
     num_workers = min(20, cpu_count())
     with Pool(processes=num_workers) as pool:
-        # imap_unordered menghasilkan hasil segera setelah siap
-        for res in pool.imap_unordered(worker, passwords):
+        for res in pool.imap_unordered(worker, passwords_gen):
             if res is not None:
                 pwd, data = res
                 print(f"\n[!!!] KUNCI BERHASIL DITEMUKAN: {pwd}")
@@ -92,7 +103,7 @@ def main():
                 with open("arweave_keyfile.json", "wb") as f:
                     f.write(data)
                 print("=> File arweave_keyfile.json berhasil disimpan!")
-                pool.terminate()   # Hentikan proses lain
+                pool.terminate()
                 break
         else:
             # Jika loop selesai tanpa break (tidak ditemukan)
