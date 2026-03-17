@@ -64,14 +64,14 @@ def worker(password):
 
 # Panel kata asli (semua huruf kecil)
 panel_words = [
-    ["wand"],
-    ["hash"],
-    ["s384"],
-    ["exch"],
-    ["nord"],
-    ["seed"],
-    ["aust"],
-    ["dust"]
+    ["wand","anho","anwo","1901","1984","1800"],
+    ["hash","towm","code","2018","romb","road"],
+    ["shax","a384","s384","-384","algo","elli"],
+    ["swap","exch","trad","fiat","loki","silo"],
+    ["eire","scan","nord","oslo","port","e4d5"],
+    ["tree","hash","wood","root","seed","beam"],
+    ["aust","pull","pool","vest","west"],
+    ["dots","node","peer","mesh","dust","base","star"]
 ]
 
 def main():
