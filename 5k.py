@@ -104,7 +104,7 @@ def main():
     for g in panel_words:
         total *= len(g)
 
-    workers = min(cpu_count(), 22)
+    workers = min(cpu_count(), 5)
 
     print("TOTAL:", total)
     print("WORKERS:", workers)
