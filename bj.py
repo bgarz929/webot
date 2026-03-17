@@ -1,7 +1,6 @@
 import base64
 import hashlib
 from Crypto.Cipher import AES
-from Crypto.Protocol.KDF import PBKDF2
 
 def decrypt_msg(msg_b64, password_str):
     # Langkah 1: hash SHA512 berulang 11513 kali
@@ -17,8 +16,8 @@ def decrypt_msg(msg_b64, password_str):
     salt = raw[8:16]
     ciphertext = raw[16:]
 
-    # PBKDF2 dengan MD5, iterasi 10000, hasilkan 48 byte (key 32 + IV 16)
-    key_iv = PBKDF2(hex_pwd, salt, dkLen=48, count=10000, hmac_hash_module=hashlib.md5)
+    # PBKDF2 dengan MD5, 10000 iterasi, hasilkan 48 byte (key 32 + IV 16)
+    key_iv = hashlib.pbkdf2_hmac('md5', hex_pwd.encode('utf-8'), salt, 10000, dklen=48)
     key = key_iv[:32]
     iv = key_iv[32:]
 
@@ -34,10 +33,14 @@ msg = "U2FsdGVkX18fDwMiir2vqpWNLgbPWRSfUTF46w0Bd8DI5e4m2pOdUXScDSuq4Epko3EMrd5LO
 
 # Daftar tebakan password (32 karakter)
 guesses = [
-    "wHP6OPG5GMF5dedo_CD8AAy6x8La-gfI",  # 32 karakter pertama dari address
-    "wHP6OPG5GMF5dedowHP6OPG5GMF5dedo",  # 16 karakter pertama diulang
-    "wandHASHs384EXCHNORDSEEDAUSTDUST",
-    "wandhashs384exchnordseedaustdust",
+    "wHP6OPG5GMF5dedo_CD8AAy6x8La-gfI",
+    "wHP6OPG5GMF5dedowHP6OPG5GMF5dedo",
+    "passwordpasswordpasswordpassword",
+    "12345678123456781234567812345678",
+    "00000000000000000000000000000000",
+    "puzzle3puzzle3puzzle3puzzle31234",
+    "arweavearweavearweavearweave1234",
+    "weavemailweavemailweavemail12345",
 ]
 
 for guess in guesses:
@@ -48,5 +51,7 @@ for guess in guesses:
             print("Kunci JSON:")
             print(result)
             break
+        else:
+            print(f"Password {guess} menghasilkan output tapi tidak mengandung kunci RSA.")
     except Exception as e:
         print(f"Password {guess} gagal: {e}")
