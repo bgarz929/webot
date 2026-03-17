@@ -71,15 +71,15 @@ def decrypt_fast(passphrase_hex):
 # WORKER
 # =========================
 
-def worker_batch(passwords):
-    for pwd in passwords:
-        passphrase = hash_loop(pwd)
-        result = decrypt_fast(passphrase)
+def worker(pwd):
+    passphrase = hash_loop(pwd)
+    result = decrypt_fast(passphrase)
 
-        if result:
-            return pwd, result
+    if result:
+        return pwd, result
 
     return None
+
 
 # =========================
 # PASSWORD SOURCE
@@ -116,23 +116,22 @@ def main():
     for g in panel_words:
         total *= len(g)
 
-    workers = min(cpu_count(), 22)
+    workers = 8  # jangan langsung 22 dulu!
 
     print("TOTAL:", total)
     print("WORKERS:", workers)
 
     gen = ("".join(p) for p in itertools.product(*panel_words))
-    batches = chunker(gen, 3000)
 
     checked = 0
 
     with Pool(workers) as pool:
 
-        for res in pool.imap_unordered(worker_batch, batches):
+        for res in pool.imap_unordered(worker, gen, chunksize=100):
 
-            checked += 3000
+            checked += 1
 
-            if checked % 30000 == 0:
+            if checked % 10000 == 0:
                 print(f"Checked: {checked}/{total}")
 
             if res:
@@ -148,6 +147,7 @@ def main():
                 return
 
     print("❌ Not found")
+
 
 if __name__ == "__main__":
     main()
