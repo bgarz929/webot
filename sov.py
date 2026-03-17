@@ -122,7 +122,7 @@ def main():
     for g in panel_words:
         total *= len(g)
 
-    workers = min(cpu_count(), 16)
+    workers = min(cpu_count(), 22)
 
     print("Total kombinasi:", total)
     print("Workers:", workers)
